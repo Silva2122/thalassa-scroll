@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maison Aelia — Thalassa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/sea.webp">
+<link rel="preload" as="image" href="img/muse.webp">
+<style>
+  :root{
+    --bg:#f4f1ea;              /* limestone */
+    --ink:#10283f;             /* deep Aegean */
+    --muted:rgba(16,40,63,.66);
+    --bronze:#a67a43;
+    --line:rgba(16,40,63,.14);
+    /* scroll progress, written by JS */
+    --p1:0;                    /* title rising, 0..1 */
+    --p2:0;                    /* interface arriving, 0..1 */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg)}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{display:block; -webkit-user-drag:none; user-select:none}
+
+  /* ---------- top nav ---------- */
+  .nav{
+    position:fixed; inset:0 0 auto 0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:28px 40px;
+    z-index:60;
+    font-size:12px; letter-spacing:0; text-transform:uppercase;
+    color:var(--muted);
+    animation:rise 1.4s cubic-bezier(.19,1,.22,1) .3s both;
+  }
+  .nav a{color:inherit;text-decoration:none;transition:color .3s}
+  .nav a:hover{color:var(--ink)}
+  .nav .mark{font-family:"Cormorant Garamond",serif;font-size:20px;letter-spacing:0;text-transform:none;color:var(--ink)}
+  .nav ul{display:flex;gap:36px;list-style:none}
+
+  /* ---------- scroll-driven hero ---------- */
+  .intro{position:relative; height:360vh}
+  .stage{
+    position:sticky; top:0;
+    height:100vh; height:100svh;
+    overflow:hidden;
+    isolation:isolate;
+    background:#bcd3e6;
+  }
+  .scene{
+    position:absolute;
+    left:50%; top:50%;
+    width:max(100vw, calc(100svh * 1672 / 941));
+    aspect-ratio:1672/941;
+    transform:translate(-50%,-50%);
+    animation:fadeIn 1.6s ease both;
+  }
+  .layer{
+    position:absolute; inset:0;
+    will-change:transform;
+    transform-origin:50% 62%;
+    pointer-events:none;
+  }
+  .layer img{position:absolute; width:100%; height:auto}
+  .l-sea  img{inset:0; height:100%; object-fit:cover}
+  .l-far  img{top:6%; left:0}
+  .l-near img{top:13%; left:0}
+  .l-muse img{top:7%; left:14%; width:90%}
+  /* the dress keeps breathing in the wind */
+  .l-muse img{animation:breeze 8s ease-in-out infinite; transform-origin:34% 95%}
+  @keyframes breeze{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(.35deg) scale(1.006)}}
+
+  /* ---------- the title rises from behind the rocks, behind her ---------- */
+  .title{
+    position:absolute;
+    top:12vh; left:0; right:0;
+    text-align:center;
+    pointer-events:none;
+    user-select:none;
+    font-family:"Cormorant Garamond",serif;
+    font-weight:300;
+    font-size:10.5vw;          /* refined by JS to span the viewport */
+    line-height:.85;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    color:var(--ink);
+    will-change:transform, opacity;
+  }
+  .title em{font-style:italic;font-weight:300;letter-spacing:0;text-transform:none}
+  .title .word{display:inline-block}
+
+  /* a little shade at the bottom so the footer line reads over the rocks */
+  .veil{
+    position:absolute; inset:0; z-index:8; pointer-events:none;
+    background:linear-gradient(0deg, rgba(30,26,20,.28) 0%, rgba(30,26,20,0) 24%);
+  }
+
+  /* ---------- interface that arrives once the title has landed ---------- */
+  .ui{
+    opacity:clamp(0, var(--p2), 1);
+    transform:translateY(calc((1 - clamp(0, var(--p2), 1)) * 28px));
+    pointer-events:none;
+  }
+  .ui.on{pointer-events:auto}
+
+  .side{
+    position:absolute;
+    bottom:108px;
+    z-index:20;
+    width:clamp(200px, 14vw, 236px);
+  }
+  .side.left{left:40px}
+  .side.right{right:40px; text-align:right}
+
+  .card{
+    width:100%;
+    padding:18px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.74);
+    backdrop-filter:blur(10px) saturate(1.1);
+    -webkit-backdrop-filter:blur(10px) saturate(1.1);
+    transition:border-color .4s, background .4s;
+  }
+  .card:hover{border-color:rgba(16,40,63,.34); background:rgba(255,255,255,.86)}
+  .card .pic{
+    position:relative;
+    margin:-18px -18px 14px;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .card .pic img{
+    width:100%; height:100%; object-fit:cover;
+    transform:scale(1.04);
+    transition:transform 1.6s cubic-bezier(.19,1,.22,1);
+  }
+  .card:hover .pic img{transform:scale(1.12)}
+  .card .pic figcaption{
+    position:absolute; left:12px; bottom:8px;
+    font-family:"Cormorant Garamond",serif; font-style:italic;
+    font-size:13px; color:#fff;
+    text-shadow:0 1px 8px rgba(0,0,0,.35);
+  }
+  .right .card .pic figcaption{left:auto; right:12px}
+  .card .lbl{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:10px; letter-spacing:0; text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .right .card .lbl{flex-direction:row-reverse}
+  .card h3{
+    font-family:"Cormorant Garamond",serif;
+    font-weight:400;
+    font-size:26px; line-height:1.05;
+    letter-spacing:0;
+    margin-bottom:8px;
+  }
+  .card h3 em{font-style:italic;font-weight:300}
+  .card p{font-size:13px; line-height:1.5; color:var(--muted); font-weight:300}
+  .card .more{
+    display:inline-block;
+    margin-top:14px;
+    font-size:10px; letter-spacing:0; text-transform:uppercase;
+    color:var(--ink); text-decoration:none;
+    border-bottom:1px solid rgba(16,40,63,.25);
+    padding-bottom:4px;
+    transition:border-color .3s;
+  }
+  .card .more:hover{border-color:var(--ink)}
+  @media (max-width:1040px){ .side{display:none} }
+
+  .foot{
+    position:absolute; inset:auto 0 0 0;
+    display:flex; justify-content:space-between; align-items:flex-end;
+    padding:32px 40px;
+    z-index:20;
+    font-size:11px; letter-spacing:0; text-transform:uppercase;
+    color:rgba(255,255,255,.82);
+  }
+  .foot .cta{
+    display:inline-flex; align-items:center; gap:14px;
+    color:#fff; text-decoration:none;
+    border-bottom:1px solid rgba(255,255,255,.4);
+    padding-bottom:6px;
+    transition:border-color .3s;
+  }
+  .foot .cta:hover{border-color:#fff}
+  .foot .cta span.line{width:40px;height:1px;background:currentColor;display:inline-block}
+  .foot .hint{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:15px;letter-spacing:0;text-transform:none}
+
+  /* scroll cue, gone as soon as the story starts */
+  .cue{
+    position:absolute; left:50%; bottom:34px; z-index:20;
+    transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    font-size:11px; letter-spacing:0; text-transform:uppercase;
+    color:#fff;
+    text-shadow:0 1px 10px rgba(0,0,0,.3);
+    opacity:clamp(0, 1 - var(--p1) * 5, 1);
+  }
+  .cue i{width:1px;height:46px;background:linear-gradient(#fff,transparent);display:block;transform-origin:top;animation:drip 2.2s ease-in-out infinite}
+  @keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+  /* subtle grain */
+  .stage::after{
+    content:"";
+    position:absolute; inset:0; z-index:30; pointer-events:none;
+    opacity:.05;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  @media (max-width:720px){
+    .nav{padding:20px 22px} .nav ul{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .l-muse img,.cue i{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="mark" href="#">Maison Aelia</a>
+  <ul>
+    <li><a href="#">Collection</a></li>
+    <li><a href="#">Atelier</a></li>
+    <li><a href="#">Journal</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <a href="#">Menu</a>
+</nav>
+
+<section class="intro" id="intro">
+  <div class="stage" id="stage">
+    <div class="scene" aria-hidden="true">
+      <div class="layer l-sea" data-layer="sea"><img src="img/sea.webp" alt=""></div>
+    </div>
+
+    <!-- between the sea and the rocks: the word climbs out from behind the cliff and settles behind her -->
+    <h1 class="title" id="title">
+      <span class="word" id="word">Thalassa</span>
+    </h1>
+
+    <div class="scene" aria-hidden="true">
+      <div class="layer l-far"  data-layer="far"><img src="img/rocks-far.webp" alt=""></div>
+      <div class="layer l-near" data-layer="near"><img src="img/rocks-near.webp" alt=""></div>
+      <div class="layer l-muse" data-layer="muse"><img src="img/muse.webp" alt="A woman in a flowing silk chiffon gown on a limestone cliff"></div>
+    </div>
+
+    <div class="veil"></div>
+
+    <aside class="side left ui">
+      <div class="card">
+        <figure class="pic"><img src="img/card-silk.webp" alt="Silk chiffon caught by the wind"><figcaption>Silk chiffon, 14 m</figcaption></figure>
+        <div class="lbl"><span>Chapter I</span><span>01 / 03</span></div>
+        <h3>The <em>Gown</em></h3>
+        <p>Fourteen metres of ivory chiffon, pleated by hand and cut to move with the meltemi.</p>
+        <a class="more" href="#">View the piece</a>
+      </div>
+    </aside>
+
+    <aside class="side right ui">
+      <div class="card">
+        <figure class="pic"><img src="img/card-coast.webp" alt="Limestone islets in the open sea"><figcaption>Off Kythira, 16:10</figcaption></figure>
+        <div class="lbl"><span>Chapter II</span><span>02 / 03</span></div>
+        <h3>The <em>Coast</em></h3>
+        <p>Shot on the cliffs above the bay, where stone, salt and light set the palette.</p>
+        <a class="more" href="#">Discover</a>
+      </div>
+    </aside>
+
+    <div class="foot ui">
+      <a class="cta" href="#"><span class="line"></span>Explore the collection</a>
+      <span class="hint">Summer edition · 2027</span>
+    </div>
+
+    <div class="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </div>
+</section>
+
+
+<script>
+(() => {
+  const root  = document.documentElement;
+  const intro = document.getElementById('intro');
+  const stage = document.getElementById('stage');
+  const title = document.getElementById('title');
+  const word  = document.getElementById('word');
+  const ui    = [...document.querySelectorAll('.ui')];
+  const L     = Object.fromEntries([...document.querySelectorAll('[data-layer]')].map(el => [el.dataset.layer, el]));
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- fit the headline to 92% of the viewport width ----
+  const fit = () => {
+    title.style.fontSize = '100px';
+    const w = word.getBoundingClientRect().width;
+    title.style.fontSize = (100 * (innerWidth * 0.92) / w) + 'px';
+  };
+  addEventListener('resize', fit);
+  if (document.fonts) document.fonts.ready.then(fit);
+  fit();
+
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const ease  = t => 1 - Math.pow(1 - t, 3);
+
+  // how far through the pinned hero we are
+  const progress = () => {
+    const r = intro.getBoundingClientRect();
+    return clamp(-r.top / (r.height - innerHeight));
+  };
+
+  // zoom: start close on her, pull back as you scroll; nearer planes travel more
+  const planes = {
+    sea:  { z: .10, y: 0,   drift: -1.5 },
+    far:  { z: .16, y: 4,   drift: -3 },
+    near: { z: .24, y: 9,   drift: -6 },
+    muse: { z: .20, y: 6,   drift: -4.5 },
+  };
+
+  let p = still ? 1 : progress();
+  const render = () => {
+    const target = progress();
+    p += (target - p) * (still ? 1 : 0.09);
+
+    const t1 = ease(clamp(p / 0.55));          // title rise + pull-back
+    const t2 = clamp((p - 0.5) / 0.28);        // cards and footer
+    const t3 = clamp((p - 0.55) / 0.45);       // gentle drift until the hero releases
+
+    for (const k in planes) {
+      const { z, y, drift } = planes[k];
+      const s = 1 + z * (1 - t1);
+      const ty = y * (1 - t1) + drift * t3;
+      L[k].style.transform = `translate3d(0, ${ty.toFixed(3)}%, 0) scale(${s.toFixed(4)})`;
+    }
+
+    // from behind the rocks (low) up into the sky, sharpening as it lands
+    const rise = (1 - t1) * innerHeight * 0.62;
+    title.style.transform = `translate3d(0, ${(rise - t3 * innerHeight * 0.03).toFixed(1)}px, 0) scale(${(0.92 + 0.08 * t1).toFixed(4)})`;
+    title.style.opacity = clamp(t1 * 2.2).toFixed(3);
+    title.style.filter = t1 < 1 ? `blur(${((1 - t1) * 6).toFixed(2)}px)` : 'none';
+
+    stage.style.setProperty('--p1', t1.toFixed(4));
+    stage.style.setProperty('--p2', ease(t2).toFixed(4));
+    ui.forEach(el => el.classList.toggle('on', t2 > .6));
+
+    requestAnimationFrame(render);
+  };
+  render();
+
+})();
+</script>
+</body>
+</html>
