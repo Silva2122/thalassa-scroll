@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="img/sea.webp">
-<link rel="preload" as="image" href="img/muse.webp">
+<link rel="preload" as="image" href="img/sky2.webp">
+<link rel="preload" as="image" href="img/muse2.webp">
 <style>
   :root{
     --bg:#f4f1ea;              /* limestone */
@@ -52,13 +52,13 @@
     height:100vh; height:100svh;
     overflow:hidden;
     isolation:isolate;
-    background:#bcd3e6;
+    background:#d6e4f0;
   }
   .scene{
     position:absolute;
     left:50%; top:50%;
-    width:max(100vw, calc(100svh * 1672 / 941));
-    aspect-ratio:1672/941;
+    width:max(100vw, calc(100svh * 1599 / 1172));
+    aspect-ratio:1599/1172;
     transform:translate(-50%,-50%);
     animation:fadeIn 1.6s ease both;
   }
@@ -69,13 +69,8 @@
     pointer-events:none;
   }
   .layer img{position:absolute; width:100%; height:auto}
-  .l-sea  img{inset:0; height:100%; object-fit:cover}
-  .l-far  img{top:6%; left:0}
-  .l-near img{top:13%; left:0}
-  .l-muse img{top:7%; left:14%; width:90%}
-  /* the dress keeps breathing in the wind */
-  .l-muse img{animation:breeze 8s ease-in-out infinite; transform-origin:34% 95%}
-  @keyframes breeze{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(.35deg) scale(1.006)}}
+  /* all three planes share one canvas: sky, the valley with the temples, and the ruins with her */
+  .l-sky img, .l-land img, .l-muse img{inset:0; width:100%; height:100%}
 
   /* ---------- the title rises from behind the rocks, behind her ---------- */
   .title{
@@ -226,7 +221,7 @@
     .nav{padding:20px 22px} .nav ul{display:none}
   }
   @media (prefers-reduced-motion:reduce){
-    .l-muse img,.cue i{animation:none}
+    .cue i{animation:none}
   }
 </style>
 </head>
@@ -246,7 +241,7 @@
 <section class="intro" id="intro">
   <div class="stage" id="stage">
     <div class="scene" aria-hidden="true">
-      <div class="layer l-sea" data-layer="sea"><img src="img/sea.webp" alt=""></div>
+      <div class="layer l-sky" data-layer="sky"><img src="img/sky2.webp" alt=""></div>
     </div>
 
     <!-- between the sea and the rocks: the word climbs out from behind the cliff and settles behind her -->
@@ -255,16 +250,15 @@
     </h1>
 
     <div class="scene" aria-hidden="true">
-      <div class="layer l-far"  data-layer="far"><img src="img/rocks-far.webp" alt=""></div>
-      <div class="layer l-near" data-layer="near"><img src="img/rocks-near.webp" alt=""></div>
-      <div class="layer l-muse" data-layer="muse"><img src="img/muse.webp" alt="A woman in a flowing silk chiffon gown on a limestone cliff"></div>
+      <div class="layer l-land" data-layer="land"><img src="img/land.webp" alt=""></div>
+      <div class="layer l-muse" data-layer="muse"><img src="img/muse2.webp" alt="A woman in a flowing ivory gown among ancient columns above an olive valley"></div>
     </div>
 
     <div class="veil"></div>
 
     <aside class="side left ui">
       <div class="card">
-        <figure class="pic"><img src="img/card-silk.webp" alt="Silk chiffon caught by the wind"><figcaption>Silk chiffon, 14 m</figcaption></figure>
+        <figure class="pic"><img src="img/card-gown.webp" alt="The ivory train of the gown in the wind"><figcaption>Silk chiffon, 14 m</figcaption></figure>
         <div class="lbl"><span>Chapter I</span><span>01 / 03</span></div>
         <h3>The <em>Gown</em></h3>
         <p>Fourteen metres of ivory chiffon, pleated by hand and cut to move with the meltemi.</p>
@@ -274,10 +268,10 @@
 
     <aside class="side right ui">
       <div class="card">
-        <figure class="pic"><img src="img/card-coast.webp" alt="Limestone islets in the open sea"><figcaption>Off Kythira, 16:10</figcaption></figure>
+        <figure class="pic"><img src="img/card-temple.webp" alt="A Doric temple above vineyards and olive groves"><figcaption>The old temple, 16:10</figcaption></figure>
         <div class="lbl"><span>Chapter II</span><span>02 / 03</span></div>
-        <h3>The <em>Coast</em></h3>
-        <p>Shot on the cliffs above the bay, where stone, salt and light set the palette.</p>
+        <h3>The <em>Ruins</em></h3>
+        <p>Shot among fallen columns above the olive groves, where stone, dust and light set the palette.</p>
         <a class="more" href="#">Discover</a>
       </div>
     </aside>
@@ -324,10 +318,9 @@
 
   // zoom: start close on her, pull back as you scroll; nearer planes travel more
   const planes = {
-    sea:  { z: .10, y: 0,   drift: -1.5 },
-    far:  { z: .16, y: 4,   drift: -3 },
-    near: { z: .24, y: 9,   drift: -6 },
-    muse: { z: .20, y: 6,   drift: -4.5 },
+    sky:  { z: .06, y: 0,   drift: -1 },
+    land: { z: .14, y: 4,   drift: -3 },
+    muse: { z: .24, y: 9,   drift: -6 },
   };
 
   let p = still ? 1 : progress();
