@@ -144,6 +144,9 @@
   .layer img{position:absolute; width:100%; height:auto}
   /* all three planes share one canvas: sky, the valley with the temples, and the ruins with her */
   .l-sky img, .l-land img, .l-muse img{inset:0; width:100%; height:100%}
+  .l-sky{transform-origin:50% 0}
+  .l-land{transform-origin:50% 100%}
+  .l-muse{transform-origin:50% 50%}
   /* the ruins rise the most: their own bottom-edge colours continue below and dissolve into the page */
   .l-muse::after{
     content:""; position:absolute; left:0; right:0; top:100%;
@@ -154,7 +157,7 @@
   /* ---------- the title rises from behind the valley, behind her ---------- */
   .title{
     position:absolute;
-    top:15vh; left:0; right:0;
+    top:13vh; left:0; right:0;
     text-align:center;
     pointer-events:none;
     user-select:none;
@@ -326,7 +329,7 @@
   const fit = () => {
     title.style.fontSize = '100px';
     const w = word.getBoundingClientRect().width;
-    title.style.fontSize = (100 * (innerWidth * 0.9) / w) + 'px';
+    title.style.fontSize = (100 * (innerWidth * 0.84) / w) + 'px';
   };
   addEventListener('resize', fit);
   if (document.fonts) document.fonts.ready.then(fit);
@@ -343,12 +346,14 @@
 
   // zoom: start close on her, pull back as you scroll; nearer planes travel more
   const planes = {
-    // camera pull-back while the title rises:
-    //   z — how much closer each plane starts (zoom out to 1)
-    //   y — where it starts, in % of the scene: sky and her start low and rise, the valley starts high and settles down
-    sky:  { z: .05, y: 4,    drift: -1 },
-    land: { z: .06, y: -5,   drift: -5 },
-    muse: { z: .07, y: 3,    drift: -9 },
+    // camera pull-back while the title rises (after the reference):
+    //   z — how much closer each plane starts; each scales about its own pivot, so
+    //       the valley (pivot: bottom) sinks as it shrinks, the sky (pivot: top) settles up,
+    //       and she and the ruins (pivot: centre) simply recede
+    //   drift — the extra climb, in % of the scene, once the title has landed
+    sky:  { z: .08, drift: -1 },
+    land: { z: .22, drift: -5 },
+    muse: { z: .18, drift: -9 },
   };
 
   let p = still ? 1 : progress();
@@ -361,17 +366,16 @@
     const t3 = clamp((p - 0.55) / 0.45);       // gentle drift until the hero releases
 
     for (const k in planes) {
-      const { z, y, drift } = planes[k];
+      const { z, drift } = planes[k];
       const s = 1 + z * (1 - t1);
-      const ty = y * (1 - t1) + drift * t3;
+      const ty = drift * t3;
       L[k].style.transform = `translate3d(0, ${ty.toFixed(3)}%, 0) scale(${s.toFixed(4)})`;
     }
 
     // climbs out from behind the valley, passes behind her and settles in the sky, sharpening as it lands
     const rise = (1 - t1) * innerHeight * 0.55;
-    title.style.transform = `translate3d(0, ${(rise - t3 * innerHeight * 0.025).toFixed(1)}px, 0) scale(${(0.96 + 0.04 * t1).toFixed(4)})`;
+    title.style.transform = `translate3d(0, ${(rise - t3 * innerHeight * 0.025).toFixed(1)}px, 0)`;
     title.style.opacity = clamp(t1 * 2.2).toFixed(3);
-    title.style.filter = t1 < 1 ? `blur(${((1 - t1) * 6).toFixed(2)}px)` : 'none';
 
     stage.style.setProperty('--p1', t1.toFixed(4));
     stage.style.setProperty('--p2', ease(t2).toFixed(4));
