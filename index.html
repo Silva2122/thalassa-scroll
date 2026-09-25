@@ -72,7 +72,7 @@
   /* all three planes share one canvas: sky, the valley with the temples, and the ruins with her */
   .l-sky img, .l-land img, .l-muse img{inset:0; width:100%; height:100%}
 
-  /* ---------- the title rises from behind the rocks, behind her ---------- */
+  /* ---------- the title comes down from the sky, behind her ---------- */
   .title{
     position:absolute;
     top:12vh; left:0; right:0;
@@ -244,7 +244,7 @@
       <div class="layer l-sky" data-layer="sky"><img src="img/sky2.webp" alt=""></div>
     </div>
 
-    <!-- between the sea and the rocks: the word climbs out from behind the cliff and settles behind her -->
+    <!-- behind her: the word comes down from the sky and settles behind her head -->
     <h1 class="title" id="title">
       <span class="word" id="word">Thalassa</span>
     </h1>
@@ -318,9 +318,9 @@
 
   // zoom: start close on her, pull back as you scroll; nearer planes travel more
   const planes = {
-    sky:  { z: .06, y: 0,   drift: -1 },
-    land: { z: .14, y: 4,   drift: -3 },
-    muse: { z: .24, y: 9,   drift: -6 },
+    sky:  { z: .025, y: 0,   drift: -1 },
+    land: { z: .06,  y: 1.5, drift: -2.5 },
+    muse: { z: .1,   y: 3.5, drift: -4.5 },
   };
 
   let p = still ? 1 : progress();
@@ -339,9 +339,9 @@
       L[k].style.transform = `translate3d(0, ${ty.toFixed(3)}%, 0) scale(${s.toFixed(4)})`;
     }
 
-    // from behind the rocks (low) up into the sky, sharpening as it lands
-    const rise = (1 - t1) * innerHeight * 0.62;
-    title.style.transform = `translate3d(0, ${(rise - t3 * innerHeight * 0.03).toFixed(1)}px, 0) scale(${(0.92 + 0.08 * t1).toFixed(4)})`;
+    // drops in from above, passes behind her head and settles in the sky, sharpening as it lands
+    const drop = -(1 - t1) * innerHeight * 0.45;
+    title.style.transform = `translate3d(0, ${(drop - t3 * innerHeight * 0.03).toFixed(1)}px, 0) scale(${(0.96 + 0.04 * t1).toFixed(4)})`;
     title.style.opacity = clamp(t1 * 2.2).toFixed(3);
     title.style.filter = t1 < 1 ? `blur(${((1 - t1) * 6).toFixed(2)}px)` : 'none';
 
