@@ -138,7 +138,7 @@
   .layer{
     position:absolute; inset:0;
     will-change:transform;
-    transform-origin:50% 62%;
+    transform-origin:50% 50%;
     pointer-events:none;
   }
   .layer img{position:absolute; width:100%; height:auto}
@@ -343,10 +343,12 @@
 
   // zoom: start close on her, pull back as you scroll; nearer planes travel more
   const planes = {
-    // y: where each plane starts (in % of the scene) while the title rises — nearer planes further
-    sky:  { z: .025, y: 1.5, drift: -1 },
-    land: { z: .06,  y: 5,   drift: -5 },
-    muse: { z: .1,   y: 11,  drift: -9 },
+    // camera pull-back while the title rises:
+    //   z — how much closer each plane starts (zoom out to 1)
+    //   y — where it starts, in % of the scene: sky and her start low and rise, the valley starts high and settles down
+    sky:  { z: .05, y: 4,    drift: -1 },
+    land: { z: .06, y: -5,   drift: -5 },
+    muse: { z: .07, y: 3,    drift: -9 },
   };
 
   let p = still ? 1 : progress();
