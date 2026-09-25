@@ -11,39 +11,112 @@
 <link rel="preload" as="image" href="img/muse2.webp">
 <style>
   :root{
-    --bg:#f4f1ea;              /* limestone */
-    --ink:#10283f;             /* deep Aegean */
-    --muted:rgba(16,40,63,.66);
-    --bronze:#a67a43;
-    --line:rgba(16,40,63,.14);
+    /* same system as the Aelia hero */
+    --page:#f3eee5;            /* sun-bleached limestone */
+    --ink:#2c2a20;             /* deep olive-brown, text + solid buttons */
+    --muted:rgba(44,42,32,.64);
+    --olive:#6f7446;           /* olive leaves */
+    --hair:rgba(44,42,32,.14);
+    --pad:clamp(20px, 4vw, 56px);
+    --serif:"Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+    --sans:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     /* scroll progress, written by JS */
     --p1:0;                    /* title rising, 0..1 */
     --p2:0;                    /* interface arriving, 0..1 */
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{background:var(--bg)}
+  html{background:var(--page)}
   body{
-    background:var(--bg);
+    background:var(--page);
     color:var(--ink);
-    font-family:"Inter",system-ui,sans-serif;
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.55;
     -webkit-font-smoothing:antialiased;
   }
   img{display:block; -webkit-user-drag:none; user-select:none}
+  a{color:inherit; text-decoration:none}
 
-  /* ---------- top nav ---------- */
+  /* ---------- buttons: always pills ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    height:44px; padding:0 22px;
+    border-radius:999px;
+    font:500 13px/1 var(--sans);
+    letter-spacing:.02em;
+    white-space:nowrap;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:background .3s, color .3s, border-color .3s;
+  }
+  .btn:focus-visible{outline:2px solid var(--olive); outline-offset:3px}
+  .btn-solid{background:var(--ink); color:var(--page)}
+  .btn-solid:hover{background:#45412f}
+  .btn-line{background:transparent; color:var(--ink); border-color:rgba(44,42,32,.28)}
+  .btn-line:hover{border-color:var(--ink)}
+  .btn-soft{background:rgba(255,255,255,.42); color:var(--ink); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+  .btn-soft:hover{background:rgba(255,255,255,.66)}
+  .btn .count{
+    display:inline-grid; place-items:center;
+    min-width:20px; height:20px; padding:0 6px;
+    border-radius:999px;
+    background:var(--ink); color:var(--page);
+    font-size:11px; font-variant-numeric:tabular-nums;
+  }
+
+  /* ---------- nav ---------- */
   .nav{
-    position:fixed; inset:0 0 auto 0;
-    display:flex; justify-content:space-between; align-items:center;
-    padding:28px 40px;
-    z-index:60;
-    font-size:12px; letter-spacing:0; text-transform:uppercase;
-    color:var(--muted);
+    position:fixed; inset:0 0 auto 0; z-index:60;
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+    padding:22px var(--pad);
+    border-bottom:1px solid transparent;
+    transition:background .5s ease, border-color .5s ease;
     animation:rise 1.4s cubic-bezier(.19,1,.22,1) .3s both;
   }
-  .nav a{color:inherit;text-decoration:none;transition:color .3s}
-  .nav a:hover{color:var(--ink)}
-  .nav .mark{font-family:"Cormorant Garamond",serif;font-size:20px;letter-spacing:0;text-transform:none;color:var(--ink)}
-  .nav ul{display:flex;gap:36px;list-style:none}
+  .nav.solid{
+    background:rgba(243,238,229,.86);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom-color:var(--hair);
+  }
+  .brand{font-family:var(--serif); font-size:24px; font-weight:400; letter-spacing:.01em}
+  .links{display:flex; gap:34px; list-style:none; font-size:13px; letter-spacing:.02em}
+  .links a{opacity:.78; transition:opacity .3s}
+  .links a:hover{opacity:1}
+  .actions{display:flex; gap:10px; justify-content:flex-end; align-items:center}
+  .burger{
+    display:none;
+    width:44px; height:44px; border-radius:50%;
+    border:1px solid rgba(44,42,32,.22);
+    background:rgba(255,255,255,.4);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    cursor:pointer; position:relative;
+  }
+  .burger i{position:absolute; left:14px; right:14px; height:1.5px; background:var(--ink); transition:transform .35s, top .35s}
+  .burger i:nth-child(1){top:18px} .burger i:nth-child(2){top:25px}
+  .nav.open .burger i:nth-child(1){top:21.5px; transform:rotate(45deg)}
+  .nav.open .burger i:nth-child(2){top:21.5px; transform:rotate(-45deg)}
+  .panel{display:none}
+  @media (max-width:900px){
+    .nav{grid-template-columns:1fr auto}
+    .links{display:none}
+    .actions .btn-solid{display:none}
+    .burger{display:block}
+    .panel{
+      display:block;
+      position:absolute; top:calc(100% + 8px); left:var(--pad); right:var(--pad);
+      padding:10px;
+      border-radius:18px;
+      background:rgba(243,238,229,.92);
+      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+      border:1px solid var(--hair);
+      box-shadow:0 24px 60px -30px rgba(44,42,32,.45);
+      opacity:0; transform:translateY(-8px); pointer-events:none;
+      transition:opacity .3s, transform .3s;
+    }
+    .nav.open .panel{opacity:1; transform:none; pointer-events:auto}
+    .panel a{display:block; padding:14px 16px; border-radius:12px; font-family:var(--serif); font-size:22px}
+    .panel a:hover{background:rgba(255,255,255,.6)}
+  }
 
   /* ---------- scroll-driven hero ---------- */
   .intro{position:relative; height:360vh}
@@ -71,19 +144,25 @@
   .layer img{position:absolute; width:100%; height:auto}
   /* all three planes share one canvas: sky, the valley with the temples, and the ruins with her */
   .l-sky img, .l-land img, .l-muse img{inset:0; width:100%; height:100%}
+  /* the ruins rise the most: their own bottom-edge colours continue below and dissolve into the page */
+  .l-muse::after{
+    content:""; position:absolute; left:0; right:0; top:100%;
+    height:40%;
+    background:#f4f1ea url("img/muse2-band.webp") center top / 100% 100% no-repeat;
+  }
 
   /* ---------- the title rises from behind the valley, behind her ---------- */
   .title{
     position:absolute;
-    top:12vh; left:0; right:0;
+    top:15vh; left:0; right:0;
     text-align:center;
     pointer-events:none;
     user-select:none;
-    font-family:"Cormorant Garamond",serif;
+    font-family:var(--serif);
     font-weight:300;
-    font-size:10.5vw;          /* refined by JS to span the viewport */
+    font-size:10.5vw;          /* refined by JS to span 90% of the viewport */
     line-height:.85;
-    letter-spacing:.04em;
+    letter-spacing:.02em;
     text-transform:uppercase;
     white-space:nowrap;
     color:var(--ink);
@@ -106,98 +185,37 @@
   }
   .ui.on{pointer-events:auto}
 
-  .side{
-    position:absolute;
-    bottom:108px;
-    z-index:20;
-    width:clamp(200px, 14vw, 236px);
-  }
-  .side.left{left:40px}
-  .side.right{right:40px; text-align:right}
-
+  /* ---------- cards: frosted glass in the page colour ---------- */
   .card{
-    width:100%;
-    padding:18px;
-    border:1px solid var(--line);
-    background:rgba(255,255,255,.74);
-    backdrop-filter:blur(10px) saturate(1.1);
-    -webkit-backdrop-filter:blur(10px) saturate(1.1);
-    transition:border-color .4s, background .4s;
+    position:absolute; z-index:20;
+    bottom:var(--pad);
+    padding:26px 26px 24px;
+    border-radius:18px;
+    background:rgba(243,238,229,.52);
+    backdrop-filter:blur(16px) saturate(1.1); -webkit-backdrop-filter:blur(16px) saturate(1.1);
+    border:1px solid rgba(255,255,255,.45);
+    box-shadow:0 30px 60px -40px rgba(44,42,32,.5);
   }
-  .card:hover{border-color:rgba(16,40,63,.34); background:rgba(255,255,255,.86)}
-  .card .pic{
-    position:relative;
-    margin:-18px -18px 14px;
-    aspect-ratio:16/9;
-    overflow:hidden;
-    border-bottom:1px solid var(--line);
-  }
-  .card .pic img{
-    width:100%; height:100%; object-fit:cover;
-    transform:scale(1.04);
-    transition:transform 1.6s cubic-bezier(.19,1,.22,1);
-  }
-  .card:hover .pic img{transform:scale(1.12)}
-  .card .pic figcaption{
-    position:absolute; left:12px; bottom:8px;
-    font-family:"Cormorant Garamond",serif; font-style:italic;
-    font-size:13px; color:#fff;
-    text-shadow:0 1px 8px rgba(0,0,0,.35);
-  }
-  .right .card .pic figcaption{left:auto; right:12px}
-  .card .lbl{
-    display:flex; justify-content:space-between; align-items:baseline;
-    font-size:10px; letter-spacing:0; text-transform:uppercase;
-    color:var(--muted);
-    margin-bottom:10px;
-  }
-  .right .card .lbl{flex-direction:row-reverse}
-  .card h3{
-    font-family:"Cormorant Garamond",serif;
-    font-weight:400;
-    font-size:26px; line-height:1.05;
-    letter-spacing:0;
-    margin-bottom:8px;
-  }
-  .card h3 em{font-style:italic;font-weight:300}
-  .card p{font-size:13px; line-height:1.5; color:var(--muted); font-weight:300}
-  .card .more{
-    display:inline-block;
-    margin-top:14px;
-    font-size:10px; letter-spacing:0; text-transform:uppercase;
-    color:var(--ink); text-decoration:none;
-    border-bottom:1px solid rgba(16,40,63,.25);
-    padding-bottom:4px;
-    transition:border-color .3s;
-  }
-  .card .more:hover{border-color:var(--ink)}
-  @media (max-width:1040px){ .side{display:none} }
-
-  .foot{
-    position:absolute; inset:auto 0 0 0;
-    display:flex; justify-content:space-between; align-items:flex-end;
-    padding:32px 40px;
-    z-index:20;
-    font-size:11px; letter-spacing:0; text-transform:uppercase;
-    color:rgba(255,255,255,.82);
-  }
-  .foot .cta{
-    display:inline-flex; align-items:center; gap:14px;
-    color:#fff; text-decoration:none;
-    border-bottom:1px solid rgba(255,255,255,.4);
-    padding-bottom:6px;
-    transition:border-color .3s;
-  }
-  .foot .cta:hover{border-color:#fff}
-  .foot .cta span.line{width:40px;height:1px;background:currentColor;display:inline-block}
-  .foot .hint{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:15px;letter-spacing:0;text-transform:none}
+  .card.intro-card{left:var(--pad); width:min(450px, calc(100% - 2 * var(--pad)))}
+  .card.place{right:var(--pad); width:300px; padding:0 0 22px; overflow:hidden}
+  .card .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:10px}
+  .card h2, .card h3{font-family:var(--serif); font-weight:400; font-size:30px; line-height:1.08; margin-bottom:10px; text-wrap:balance}
+  .card h2 em, .card h3 em{font-style:italic; font-weight:300}
+  .card p{font-size:15px; color:var(--muted); margin-bottom:20px}
+  .card .row{display:flex; gap:10px; flex-wrap:wrap}
+  .card.place .pic{aspect-ratio:16/10; overflow:hidden; margin-bottom:18px}
+  .card.place .pic img{width:100%; height:100%; object-fit:cover; transform:scale(1.04); transition:transform 1.6s cubic-bezier(.19,1,.22,1)}
+  .card.place:hover .pic img{transform:scale(1.1)}
+  .card.place .eyebrow, .card.place h3, .card.place p, .card.place .btn{margin-left:22px; margin-right:22px}
+  .card.place p{margin-bottom:16px}
+  @media (max-width:1100px){ .card.place{display:none} }
 
   /* scroll cue, gone as soon as the story starts */
   .cue{
     position:absolute; left:50%; bottom:34px; z-index:20;
     transform:translateX(-50%);
     display:flex; flex-direction:column; align-items:center; gap:12px;
-    font-size:11px; letter-spacing:0; text-transform:uppercase;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
     color:#fff;
     text-shadow:0 1px 10px rgba(0,0,0,.3);
     opacity:clamp(0, 1 - var(--p1) * 5, 1);
@@ -217,25 +235,32 @@
   @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-  @media (max-width:720px){
-    .nav{padding:20px 22px} .nav ul{display:none}
-  }
   @media (prefers-reduced-motion:reduce){
-    .cue i{animation:none}
+    .cue i,.nav{animation:none}
   }
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <a class="mark" href="#">Maison Aelia</a>
-  <ul>
+<nav class="nav" id="nav">
+  <a class="brand" href="#">Maison Aelia</a>
+  <ul class="links">
     <li><a href="#">Collection</a></li>
     <li><a href="#">Atelier</a></li>
     <li><a href="#">Journal</a></li>
-    <li><a href="#">Contact</a></li>
+    <li><a href="#">Stores</a></li>
   </ul>
-  <a href="#">Menu</a>
+  <div class="actions">
+    <a class="btn btn-solid" href="#">Book a fitting</a>
+    <a class="btn btn-soft" href="#" aria-label="Bag, 2 items">Bag <span class="count">2</span></a>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="panel"><i></i><i></i></button>
+  </div>
+  <div class="panel" id="panel">
+    <a href="#">Collection</a>
+    <a href="#">Atelier</a>
+    <a href="#">Journal</a>
+    <a href="#">Stores</a>
+  </div>
 </nav>
 
 <section class="intro" id="intro">
@@ -256,29 +281,22 @@
 
     <div class="veil"></div>
 
-    <aside class="side left ui">
-      <div class="card">
-        <figure class="pic"><img src="img/card-gown.webp" alt="The ivory train of the gown in the wind"><figcaption>Silk chiffon, 14 m</figcaption></figure>
-        <div class="lbl"><span>Chapter I</span><span>01 / 03</span></div>
-        <h3>The <em>Gown</em></h3>
-        <p>Fourteen metres of ivory chiffon, pleated by hand and cut to move with the meltemi.</p>
-        <a class="more" href="#">View the piece</a>
+    <div class="card intro-card ui">
+      <div class="eyebrow">Summer 2027</div>
+      <h2>Stone <em>&amp;</em> Silk</h2>
+      <p>Eleven ivory pieces cut to move with the meltemi, shot among the ruins above Athens.</p>
+      <div class="row">
+        <a class="btn btn-solid" href="#">Shop the collection</a>
+        <a class="btn btn-soft" href="#">Watch the film</a>
       </div>
-    </aside>
+    </div>
 
-    <aside class="side right ui">
-      <div class="card">
-        <figure class="pic"><img src="img/card-temple.webp" alt="A Doric temple above vineyards and olive groves"><figcaption>The old temple, 16:10</figcaption></figure>
-        <div class="lbl"><span>Chapter II</span><span>02 / 03</span></div>
-        <h3>The <em>Ruins</em></h3>
-        <p>Shot among fallen columns above the olive groves, where stone, dust and light set the palette.</p>
-        <a class="more" href="#">Discover</a>
-      </div>
-    </aside>
-
-    <div class="foot ui">
-      <a class="cta" href="#"><span class="line"></span>Explore the collection</a>
-      <span class="hint">Summer edition · 2027</span>
+    <div class="card place ui">
+      <figure class="pic"><img src="img/card-temple.webp" alt="A Doric temple above vineyards and olive groves"></figure>
+      <div class="eyebrow">The location</div>
+      <h3>The <em>Ruins</em></h3>
+      <p>Fallen columns above the olive groves, where stone, dust and light set the palette.</p>
+      <a class="btn btn-line" href="#">Discover</a>
     </div>
 
     <div class="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
@@ -296,12 +314,19 @@
   const ui    = [...document.querySelectorAll('.ui')];
   const L     = Object.fromEntries([...document.querySelectorAll('[data-layer]')].map(el => [el.dataset.layer, el]));
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nav   = document.getElementById('nav');
+  const burger = document.getElementById('burger');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  });
 
   // ---- fit the headline to 92% of the viewport width ----
   const fit = () => {
     title.style.fontSize = '100px';
     const w = word.getBoundingClientRect().width;
-    title.style.fontSize = (100 * (innerWidth * 0.92) / w) + 'px';
+    title.style.fontSize = (100 * (innerWidth * 0.9) / w) + 'px';
   };
   addEventListener('resize', fit);
   if (document.fonts) document.fonts.ready.then(fit);
@@ -318,9 +343,10 @@
 
   // zoom: start close on her, pull back as you scroll; nearer planes travel more
   const planes = {
-    sky:  { z: .025, y: 0,   drift: -1 },
-    land: { z: .06,  y: 1.5, drift: -2.5 },
-    muse: { z: .1,   y: 3.5, drift: -4.5 },
+    // y: where each plane starts (in % of the scene) while the title rises — nearer planes further
+    sky:  { z: .025, y: 1.5, drift: -1 },
+    land: { z: .06,  y: 5,   drift: -5 },
+    muse: { z: .1,   y: 11,  drift: -9 },
   };
 
   let p = still ? 1 : progress();
@@ -341,7 +367,7 @@
 
     // climbs out from behind the valley, passes behind her and settles in the sky, sharpening as it lands
     const rise = (1 - t1) * innerHeight * 0.55;
-    title.style.transform = `translate3d(0, ${(rise - t3 * innerHeight * 0.03).toFixed(1)}px, 0) scale(${(0.96 + 0.04 * t1).toFixed(4)})`;
+    title.style.transform = `translate3d(0, ${(rise - t3 * innerHeight * 0.025).toFixed(1)}px, 0) scale(${(0.96 + 0.04 * t1).toFixed(4)})`;
     title.style.opacity = clamp(t1 * 2.2).toFixed(3);
     title.style.filter = t1 < 1 ? `blur(${((1 - t1) * 6).toFixed(2)}px)` : 'none';
 
